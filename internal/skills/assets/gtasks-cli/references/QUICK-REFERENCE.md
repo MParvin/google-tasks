@@ -23,7 +23,7 @@ echo $env:GTASKS_CLIENT_ID
 echo $env:GTASKS_CLIENT_SECRET
 
 # Check authentication status
-gtasks tasklists view &>/dev/null && echo "✓ Authenticated" || echo "✗ Not authenticated"
+gtasks tasklists &>/dev/null && echo "✓ Authenticated" || echo "✗ Not authenticated"
 ```
 
 ## Authentication
@@ -36,58 +36,58 @@ gtasks logout                   # Remove credentials
 ## Task Lists
 
 ```bash
-gtasks tasklists view                    # List all task lists
-gtasks tasklists add -t "List Name"      # Create task list
-gtasks tasklists rm                      # Delete task list (interactive)
-gtasks tasklists update -t "New Name"    # Rename task list (interactive)
+gtasks tasklists                         # List all task lists
+gtasks tasklists add "List Name"         # Create task list
+gtasks tasklists rm Work                 # Delete task list
+gtasks tasklists update Work -t "New"    # Rename task list
 ```
 
 ## View Tasks
 
 ```bash
-gtasks tasks view                        # View tasks (interactive list selection)
-gtasks tasks view -l "Work"              # View tasks in specific list
-gtasks tasks view -i                     # Include completed tasks
-gtasks tasks view --completed            # Show only completed tasks
-gtasks tasks view --sort=due             # Sort by due date
-gtasks tasks view --sort=title           # Sort by title
-gtasks tasks view --format=json          # JSON output
-gtasks tasks view --format=csv           # CSV output
+gtasks ls                                # List tasks (default list)
+gtasks ls -l "Work"                      # List tasks in a specific list
+gtasks ls -i                             # Include completed tasks
+gtasks ls --completed                    # Show only completed tasks
+gtasks ls --sort=due                     # Sort by due date
+gtasks ls --sort=title                   # Sort by title
+gtasks ls --format=json                  # JSON output
+gtasks ls --format=csv                   # CSV output
 ```
 
 ## Create Tasks
 
 ```bash
-gtasks tasks add                                          # Interactive mode
-gtasks tasks add -t "Title"                               # With title only
-gtasks tasks add -t "Title" -n "Notes"                    # With notes
-gtasks tasks add -t "Title" -d "2024-12-25"              # With due date
-gtasks tasks add -t "Title" -n "Notes" -d "tomorrow"     # All fields
-gtasks tasks add -l "Work" -t "Title"                    # Specify list
+gtasks add                                            # Interactive mode
+gtasks add "Title"                                    # With title only
+gtasks add "Title" -n "Notes"                         # With notes
+gtasks add "Title" -d "2024-12-25"                    # With due date
+gtasks add "Title" -n "Notes" -d "tomorrow"           # All fields
+gtasks add "Title" -l "Work"                          # Specify list
 ```
 
 ## Complete Tasks
 
 ```bash
-gtasks tasks done                   # Interactive selection
-gtasks tasks done 1                 # Complete task #1
-gtasks tasks done 3 -l "Work"       # Complete task #3 in Work list
+gtasks done                     # Interactive selection
+gtasks done 1                   # Complete task #1
+gtasks done 3 -l "Work"         # Complete task #3 in Work list
 ```
 
 ## Delete Tasks
 
 ```bash
-gtasks tasks rm                     # Interactive selection
-gtasks tasks rm 2                   # Delete task #2
-gtasks tasks rm 1 -l "Personal"     # Delete task #1 in Personal list
+gtasks rm                       # Interactive selection
+gtasks rm 2                     # Delete task #2
+gtasks rm 1 -l "Personal"       # Delete task #1 in Personal list
 ```
 
 ## Task Details
 
 ```bash
-gtasks tasks info                   # Interactive selection
-gtasks tasks info 1                 # Show details for task #1
-gtasks tasks info 2 -l "Work"       # Show details for task #2 in Work list
+gtasks info                     # Interactive selection
+gtasks info 1                   # Show details for task #1
+gtasks info 2 -l "Work"         # Show details for task #2 in Work list
 ```
 
 ## Date Format Examples
@@ -108,32 +108,32 @@ in 3 days           # Relative duration
 
 ### Add task with deadline
 ```bash
-gtasks tasks add -l "Work" -t "Submit proposal" -d "next Friday"
+gtasks add "Submit proposal" -l "Work" -d "next Friday"
 ```
 
 ### Check today's tasks
 ```bash
-gtasks tasks view -l "Work" --sort=due
+gtasks ls -l "Work" --sort=due
 ```
 
 ### Complete multiple tasks
 ```bash
-gtasks tasks done -l "Work"    # Select first task
-gtasks tasks done -l "Work"    # Select next task
+gtasks done -l "Work"    # Select first task
+gtasks done -l "Work"    # Select next task
 ```
 
 ### Export tasks
 ```bash
-gtasks tasks view --format=json > tasks.json
-gtasks tasks view --format=csv > tasks.csv
+gtasks ls --format=json > tasks.json
+gtasks ls --format=csv > tasks.csv
 ```
 
 ### Create shopping list
 ```bash
-gtasks tasklists add -t "Shopping"
-gtasks tasks add -l "Shopping" -t "Milk"
-gtasks tasks add -l "Shopping" -t "Bread"
-gtasks tasks add -l "Shopping" -t "Eggs"
+gtasks tasklists add "Shopping"
+gtasks add "Milk" -l "Shopping"
+gtasks add "Bread" -l "Shopping"
+gtasks add "Eggs" -l "Shopping"
 ```
 
 ## Flags Reference
@@ -215,8 +215,8 @@ No,Title,Description,Status,Due
 | "command not found: gtasks" | GTasks not installed | Run `curl -fsSL https://gtasks.sidv.dev/install \| bash` or download from [releases](https://github.com/BRO3886/gtasks/releases) |
 | "Failed to get service" | Not authenticated or missing env vars | Check env vars, then run `gtasks login` |
 | Missing GTASKS_CLIENT_ID/SECRET | Environment variables not set | Export GTASKS_CLIENT_ID and GTASKS_CLIENT_SECRET |
-| "incorrect task-list name" | List doesn't exist | Check with `gtasks tasklists view` |
-| "Incorrect task number" | Invalid task number | Run `gtasks tasks view` to see valid numbers |
+| "tasklist ... not found" | List doesn't exist | Check with `gtasks tasklists` |
+| "task ... not found" | Invalid task number | Run `gtasks ls` to see valid numbers |
 | "Date format incorrect" | Unparseable date | Use format like "2024-12-25" or "tomorrow" |
 
 ## Tips
@@ -231,6 +231,7 @@ No,Title,Description,Status,Due
 
 ```bash
 gtasks --help                  # General help
-gtasks tasks --help            # Tasks command help
+gtasks ls --help               # List-tasks help
+gtasks add --help              # Add-task help
 gtasks tasklists --help        # Task lists command help
 ```

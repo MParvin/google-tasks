@@ -149,10 +149,16 @@ For automated setups, prefer `--agent <name>` or `--agent all` to avoid interact
 
 ## Command Structure
 
-All commands follow this pattern:
+Common operations are top-level commands:
+
 ```
-gtasks [command] [subcommand] [flags] [arguments]
+gtasks ls
+gtasks add "Buy milk"
+gtasks done 1
+gtasks tasklists
 ```
+
+Use `-l` / `--tasklist` to select a list. If omitted, gtasks uses the configured default, auto-selects when only one list exists, or prompts interactively.
 
 ## Authentication
 
@@ -206,7 +212,7 @@ Removes the installed `gtasks-cli` skill from the selected agent skill directory
 
 ### View All Task Lists
 ```bash
-gtasks tasklists view
+gtasks tasklists
 ```
 Displays all task lists with numbered indices.
 
@@ -219,25 +225,27 @@ Displays all task lists with numbered indices.
 
 ### Create a Task List
 ```bash
-gtasks tasklists add -t "Work Projects"
+gtasks tasklists add "Work Projects"
 gtasks tasklists add --title "Shopping List"
 ```
 Creates a new task list with the specified title.
 
 **Flags:**
-- `-t, --title`: Task list title (required)
+- `-t, --title`: Task list title (optional if a positional title is given)
 
 ### Delete a Task List
 ```bash
+gtasks tasklists rm Work
 gtasks tasklists rm
 ```
-Interactive prompt to select and delete a task list.
+Delete by name, or omit the name for an interactive prompt.
 
 ### Update Task List Title
 ```bash
+gtasks tasklists update Work -t "New Title"
 gtasks tasklists update -t "New Title"
 ```
-Interactive prompt to select a task list and update its title.
+Rename a task list. `--title` / `-t` is required for the new name. If no current name is given, you will be prompted to select one.
 
 **Flags:**
 - `-t, --title`: New title for the task list (required)
@@ -250,33 +258,33 @@ All task commands can optionally specify a task list using the `-l` flag. If omi
 
 **Basic view:**
 ```bash
-gtasks tasks view
-gtasks tasks view -l "Work"
+gtasks ls
+gtasks ls -l "Work"
 ```
 
 **Include completed tasks:**
 ```bash
-gtasks tasks view --include-completed
-gtasks tasks view -i
+gtasks ls --include-completed
+gtasks ls -i
 ```
 
 **Show only completed tasks:**
 ```bash
-gtasks tasks view --completed
+gtasks ls --completed
 ```
 
 **Sort tasks:**
 ```bash
-gtasks tasks view --sort=due        # Sort by due date
-gtasks tasks view --sort=title      # Sort by title
-gtasks tasks view --sort=position   # Sort by position (default)
+gtasks ls --sort=due        # Sort by due date
+gtasks ls --sort=title      # Sort by title
+gtasks ls --sort=position   # Sort by position (default)
 ```
 
 **Output formats:**
 ```bash
-gtasks tasks view --format=table    # Table format (default)
-gtasks tasks view --format=json     # JSON output
-gtasks tasks view --format=csv      # CSV output
+gtasks ls --format=table    # Table format (default)
+gtasks ls --format=json     # JSON output
+gtasks ls --format=csv      # CSV output
 ```
 
 **Table Output Example:**
@@ -305,23 +313,24 @@ No  Title              Description         Status     Due
 
 **Interactive mode:**
 ```bash
-gtasks tasks add
-gtasks tasks add -l "Work"
+gtasks add
+gtasks add -l "Work"
 ```
 Prompts for title, notes, and due date.
 
-**Flag mode:**
+**Positional / flag mode:**
 ```bash
-gtasks tasks add -t "Buy groceries"
-gtasks tasks add -t "Finish report" -n "Q4 analysis" -d "2024-12-25"
-gtasks tasks add -t "Call dentist" -d "tomorrow"
-gtasks tasks add -t "Team meeting" -d "Dec 25"
+gtasks add "Buy groceries"
+gtasks add "Finish report" -n "Q4 analysis" -d "2024-12-25"
+gtasks add "Call dentist" -d "tomorrow"
+gtasks add "Team meeting" -d "Dec 25" -l "Work"
 ```
 
 **Flags:**
-- `-t, --title`: Task title (required for non-interactive mode)
+- `-t, --title`: Task title (optional if a positional title is given)
 - `-n, --note`: Task notes/description (optional)
 - `-d, --due`: Due date (optional, flexible format)
+- `-l, --tasklist`: Task list name
 
 **Date Format Examples:**
 The date parser supports many formats:
@@ -338,14 +347,14 @@ See [dateparse examples](https://github.com/araddon/dateparse#extended-example) 
 
 **With task number:**
 ```bash
-gtasks tasks done 1
-gtasks tasks done 3 -l "Work"
+gtasks done 1
+gtasks done 3 -l "Work"
 ```
 
 **Interactive mode:**
 ```bash
-gtasks tasks done
-gtasks tasks done -l "Personal"
+gtasks done
+gtasks done -l "Personal"
 ```
 Prompts to select a task from the list.
 
@@ -353,14 +362,14 @@ Prompts to select a task from the list.
 
 **With task number:**
 ```bash
-gtasks tasks rm 2
-gtasks tasks rm 1 -l "Shopping"
+gtasks rm 2
+gtasks rm 1 -l "Shopping"
 ```
 
 **Interactive mode:**
 ```bash
-gtasks tasks rm
-gtasks tasks rm -l "Work"
+gtasks rm
+gtasks rm -l "Work"
 ```
 Prompts to select a task to delete.
 
@@ -368,14 +377,14 @@ Prompts to select a task to delete.
 
 **With task number:**
 ```bash
-gtasks tasks info 1
-gtasks tasks info 3 -l "Work"
+gtasks info 1
+gtasks info 3 -l "Work"
 ```
 
 **Interactive mode:**
 ```bash
-gtasks tasks info
-gtasks tasks info -l "Personal"
+gtasks info
+gtasks info -l "Personal"
 ```
 
 **Output Example:**
@@ -391,39 +400,61 @@ Links:
 View in Google Tasks: https://tasks.google.com/...
 ```
 
+### Undo a Completed Task
+
+```bash
+gtasks undo 1
+gtasks undo 1 -l "Work"
+```
+
+### Update a Task
+
+```bash
+gtasks update 1
+gtasks update 1 --title "New title"
+gtasks update 1 --note "Updated note" --due tomorrow -l "Work"
+```
+
+### Clear Completed Tasks
+
+```bash
+gtasks clear
+gtasks clear -l "Work" --force
+```
+
 ## Common Workflows
 
 ### Quick Task Creation
 When a user says "add a task to my work list":
 ```bash
-gtasks tasks add -l "Work" -t "Task title"
+gtasks add "Task title" -l "Work"
 ```
 
 ### Check Today's Tasks
 ```bash
-gtasks tasks view --sort=due
+gtasks ls --sort=due
 ```
 
 ### Complete Multiple Tasks
 ```bash
-gtasks tasks done -l "Work"
+gtasks done -l "Work"
 # Interactive prompt appears, select task
-gtasks tasks done -l "Work"
+gtasks done -l "Work"
 # Repeat as needed
 ```
 
 ### View All Tasks Across Lists
-Run view command multiple times for each list, or first list all task lists:
+Run ls for each list, or first list all task lists:
 ```bash
-gtasks tasklists view
-gtasks tasks view -l "Work"
-gtasks tasks view -l "Personal"
+gtasks tasklists
+gtasks ls -l "Work"
+gtasks ls -l "Personal"
 ```
 
 ### Export Tasks
 ```bash
-gtasks tasks view --format=json > tasks.json
-gtasks tasks view --format=csv > tasks.csv
+gtasks ls --format=json > tasks.json
+gtasks ls --format=csv > tasks.csv
 ```
 
 ## Best Practices
@@ -441,7 +472,7 @@ gtasks tasks view --format=csv > tasks.csv
 
 5. **Task numbers are ephemeral**: Task numbers change when tasks are added, completed, or deleted. Always view the list first to get current numbers.
 
-6. **Handle missing lists gracefully**: If a user specifies a non-existent list name, the command will error. Always verify list names first with `gtasks tasklists view`.
+6. **Handle missing lists gracefully**: If a user specifies a non-existent list name, the command will error. Always verify list names first with `gtasks tasklists`.
 
 ## Error Handling
 
@@ -451,34 +482,34 @@ Common errors and solutions:
   - First, ensure environment variables are set: `echo $GTASKS_CLIENT_ID`
   - If variables are not set, export them (see Prerequisites section)
   - Then run `gtasks login` to authenticate
-- **"incorrect task-list name"**: The specified list name doesn't exist. Use `gtasks tasklists view` to see available lists
-- **"Incorrect task number"**: The task number is invalid. Use `gtasks tasks view` to see current task numbers
+- **"tasklist ... not found"**: The specified list name doesn't exist. Use `gtasks tasklists` to see available lists
+- **"task ... not found"**: The task number is invalid. Use `gtasks ls` to see current task numbers
 - **"Date format incorrect"**: The date string couldn't be parsed. Use formats like "2024-12-25", "tomorrow", or "Dec 25"
 
 ## Examples
 
 ### Example 1: Create a shopping list and add items
 ```bash
-gtasks tasklists add -t "Shopping"
-gtasks tasks add -l "Shopping" -t "Milk"
-gtasks tasks add -l "Shopping" -t "Bread"
-gtasks tasks add -l "Shopping" -t "Eggs"
+gtasks tasklists add "Shopping"
+gtasks add "Milk" -l "Shopping"
+gtasks add "Bread" -l "Shopping"
+gtasks add "Eggs" -l "Shopping"
 ```
 
 ### Example 2: Review and complete work tasks
 ```bash
-gtasks tasks view -l "Work" --sort=due
-gtasks tasks done 1 -l "Work"
+gtasks ls -l "Work" --sort=due
+gtasks done 1 -l "Work"
 ```
 
 ### Example 3: Add task with deadline
 ```bash
-gtasks tasks add -l "Work" -t "Submit proposal" -n "Include budget and timeline" -d "next Friday"
+gtasks add "Submit proposal" -l "Work" -n "Include budget and timeline" -d "next Friday"
 ```
 
 ### Example 4: Export completed tasks
 ```bash
-gtasks tasks view --completed --format=json -l "Work" > completed_work.json
+gtasks ls --completed --format=json -l "Work" > completed_work.json
 ```
 
 ## Tips for Agents
@@ -505,13 +536,13 @@ gtasks tasks view --completed --format=json -l "Work" > completed_work.json
 
 3. **Check authentication status**:
    ```bash
-   gtasks tasklists view &>/dev/null && echo "Authenticated" || echo "Not authenticated - run 'gtasks login'"
+   gtasks tasklists &>/dev/null && echo "Authenticated" || echo "Not authenticated - run 'gtasks login'"
    ```
 
 ### General Tips
 
 - When the user mentions "tasks" without specifying a tool, ask if they want to use Google Tasks
-- If the user asks about their tasks, first run `gtasks tasklists view` to see available lists
+- If the user asks about their tasks, first run `gtasks tasklists` to see available lists
 - Always confirm which task list to use if not specified by the user
 - When creating tasks with dates, prefer explicit date formats (YYYY-MM-DD) over relative terms for clarity
 - Remember that task numbers are 1-indexed and change after modifications

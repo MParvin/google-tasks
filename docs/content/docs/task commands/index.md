@@ -1,81 +1,60 @@
 ---
 title: "Task commands"
-description: "View, add, complete, undo, update, and delete tasks with gtasks. Full command reference with examples."
+description: "List, add, complete, undo, update, and delete tasks with gtasks. Full command reference with examples."
 draft: false
 weight: 4
 sitemap:
   priority: 0.8
 ---
 
-## Help command
-
-- to view inline help for all the commands
+## Help
 
 ```
-❯ gtasks tasks help
-
-        View, create, list and delete tasks in a tasklist
-        for the currently signed in account.
-        Usage:
-        [WITH LIST FLAG]
-        gtasks tasks -l "<task-list name>" view|add|rm|done|undo|clear|info|update
-
-        [WITHOUT LIST FLAG]
-        gtasks tasks view|add|rm|done|undo|clear|info|update
-        * Uses GTASKS_DEFAULT_TASKLIST env var or default_task_list from config if set
-        * Auto-selects if only one tasklist exists
-        * Otherwise prompts to select a tasklist
-
-Usage:
-  gtasks tasks [command]
+❯ gtasks --help
 
 Available Commands:
-  add         Add task in a tasklist
-  clear       Hide all completed tasks from the list
-  done        Mark tasks as done
+  add         Add a task
+  clear       Hide all completed tasks
+  done        Mark a task as done
   info        View detailed information about a task
-  rm          Delete a task in a tasklist
+  ls          List tasks
+  rm          Delete a task
   undo        Mark a completed task as incomplete
   update      Update an existing task
-  view        View tasks in a tasklist
-
-Flags:
-  -h, --help              help for tasks
-  -l, --tasklist string   use this flag to specify a tasklist
-
-Use "gtasks tasks [command] --help" for more information about a command.
 ```
 
-## Add Task
-
-- First select the tasklist
+Use `-l` / `--tasklist` on any task command to select a list. If omitted, gtasks uses `GTASKS_DEFAULT_TASKLIST` or `default_task_list` from the config file. If only one tasklist exists, it is selected automatically. Otherwise you will be prompted to choose one.
 
 ```
-❯ gtasks tasks add
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Tasklist:
-  ▸ DSC VIT
-    Daily todo
-    Life
-    Placement todo
-↓   To watch
+gtasks ls -l "DSC VIT"
+gtasks add "Buy milk" -l "DSC VIT"
 ```
 
-- Then add task
+Task numbers are the 1-based index shown by `gtasks ls`. They can change when tasks are added, deleted, or sorted.
+
+## Add a task
 
 ```
-❯ gtasks tasks add
-✔ DSC VIT
+❯ gtasks add "Buy milk"
+Creating task in DSC VIT
+Task created
+```
+
+Interactive mode (no title given):
+
+```
+❯ gtasks add
 Creating task in DSC VIT
 Title: testing
 Note: testing
 Due Date: 12 July 2021
 ```
 
-- For a shorthand syntax use:
+Flags still work:
 
 ```
-gtasks tasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <some due date>]
+gtasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <some due date>]
+gtasks add "Call dentist" -d tomorrow
 ```
 
 ### Recurring Tasks
@@ -83,7 +62,7 @@ gtasks tasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <
 Create multiple tasks with a repeating schedule using the `--repeat` flag:
 
 ```
-❯ gtasks tasks add -l "DSC VIT" -t "Daily standup" -d "2025-02-10" --repeat daily --repeat-count 5
+❯ gtasks add -l "DSC VIT" "Daily standup" -d "2025-02-10" --repeat daily --repeat-count 5
 Creating task in DSC VIT
 Creating 5 recurring tasks...
 Created 5 tasks
@@ -100,217 +79,130 @@ Available repeat patterns:
 You can use `--repeat-count` to specify the number of occurrences:
 
 ```
-gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-count 4
+gtasks add "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-count 4
 ```
 
 Or use `--repeat-until` to specify an end date:
 
 ```
-gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
+gtasks add "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
 ```
 
-Both can be combined - the command stops at whichever limit is reached first.
+Both can be combined — the command stops at whichever limit is reached first.
 
-## View all tasks in a tasklist
-
-- First select tasklist
+## List tasks
 
 ```
-❯ gtasks tasks view
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Tasklist:
-  ▸ DSC VIT
-    Daily todo
-    Life
-    Placement todo
-↓   To watch
-```
-
-- Then you'll be able to see tasks in a tabular format
-
-```
-❯ gtasks tasks view
-✔ DSC VIT
+❯ gtasks ls
 Tasks in DSC VIT:
 | NO |        TITLE         |          DESCRIPTION           | STATUS |     DUE      |
 |----|----------------------|--------------------------------|--------|--------------|
-|  1 | testing              | testing                        | ✖      | 12 July 2021 |
-|  2 | HopeHouse            | Checkout the app. Maybe        | ✖      | 06 July 2021 |
-|    |                      | migrate to Flutter 2.0         |        |              |
-|  3 | Vitty App Publishing | Get Appbundle for publishing   | ✖      | 07 July 2021 |
-|    |                      | Vitty                          |        |              |
-|  4 | Cadence              | App status - Yajat             | ✖      | 07 July 2021 |
-|  5 | Keats android        | Take update on webview from    | ✖      | 11 July 2021 |
-|    |                      | hishaam                        |        |              |
-|  6 | Keats ios            | Check up on the apple dev      | ✖      | 08 July 2021 |
-|    |                      | account status - Swamita       |        |              |
+|  1 | testing              | testing                        | pending| 12 July 2021 |
+|  2 | HopeHouse            | Checkout the app. Maybe        | pending| 06 July 2021 |
 ```
 
-- Output formats (table, json, csv)
+A specific tasklist:
+
+```
+gtasks ls -l "DSC VIT"
+gtasks ls --tasklist "DSC VIT"
+```
+
+### Output formats (table, json, csv)
 
 Use `--format` to change the output format. The default is `table`.
 
 ```
-❯ gtasks tasks view --format table
+❯ gtasks ls --format table
 
-❯ gtasks tasks view --format json
+❯ gtasks ls --format json
 
-❯ gtasks tasks view --format csv
+❯ gtasks ls --format csv
 ```
 
 JSON example (pipe to `jq`):
 
 ```
-❯ gtasks tasks view -l "DSC VIT" --format json | jq '.[] | {title, status, due}'
+❯ gtasks ls -l "DSC VIT" --format json | jq '.[] | {title, status, due}'
 ```
 
 CSV example (redirect to a file):
 
 ```
-❯ gtasks tasks view -l "DSC VIT" --format csv > tasks.csv
+❯ gtasks ls -l "DSC VIT" --format csv > tasks.csv
 ```
 
-- To include completed tasks:
+### Include completed tasks
 
 ```
-❯ gtasks tasks view --include-completed
+❯ gtasks ls --include-completed
 
-❯ gtasks tasks -l "DSC VIT" view -i
+❯ gtasks ls -l "DSC VIT" -i
 ```
 
-Example:
+### Show only completed tasks
 
 ```
-❯ gtasks tasks -l "DSC VIT" view -i
-Tasks in DSC VIT:
-| NO |          TITLE           |          DESCRIPTION           | STATUS |       DUE        |
-|----|--------------------------|--------------------------------|--------|------------------|
-|  1 | testing                  | testing                        | ✖      | 12 July 2021     |
-|  2 | Gidget fixes             | Push updated appbundle to play | ✔      | 04 July 2021     |
-|    |                          | store                          |        |                  |
-|  3 | Gidget fixes             | take new aab from Rishav       | ✔      | 06 July 2021     |
-|  4 | HopeHouse                | Checkout the app. Maybe        | ✖      | 06 July 2021     |
-|    |                          | migrate to Flutter 2.0         |        |                  |
-|  5 | Vitty App Publishing     | Get Appbundle for publishing   | ✖      | 07 July 2021     |
-|    |                          | Vitty                          |        |                  |
-|  6 | Cadence                  | App status - Yajat             | ✖      | 07 July 2021     |
-|  7 | Keats android            | Take update on webview from    | ✖      | 11 July 2021     |
-|    |                          | hishaam                        |        |                  |
-|  8 | Keats ios                | Check up on the apple dev      | ✖      | 08 July 2021     |
-|    |                          | account status - Swamita       |        |                  |
-|  9 | Testing                  | Something testing ono          | ✔      | 12 July 2021     |
-| 10 | asjla                    | sjasj                          | ✔      | 12 July 2021     |
-| 11 | testing                  | testing 1 2 3                  | ✔      | No Due Date      |
-| 12 | abdcd                    | ahfje                          | ✔      | 10 July 2021     |
+❯ gtasks ls --completed
+
+❯ gtasks ls -l "DSC VIT" --completed
 ```
 
-- To show completed tasks:
+### Sort and limit
 
 ```
-❯ gtasks tasks view --completed
+❯ gtasks ls --sort due
 
-❯ gtasks tasks -l "DSC VIT" view --completed
+❯ gtasks ls -l "DSC VIT" --sort title
+
+❯ gtasks ls --max 5
+
+❯ gtasks ls -l "DSC VIT" --max 10
 ```
 
-- To change sort order (due date, title, position, defeault=position)
+Sort options: `due`, `title`, `position` (default).
+
+## Mark a task as done
 
 ```
-❯ gtasks tasks view --sort due
-
-❯ gtasks tasks -l "DSC VIT" view --sort title
-```
-
-- To limit the number of results:
-
-```
-❯ gtasks tasks view --max 5
-
-❯ gtasks tasks -l "DSC VIT" view --max 10
-```
-
-## Mark task as done
-
-- With prompt:
-
-```
-❯ gtasks tasks done
-✔ DSC VIT
-Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Task:
-  ▸ testing
-    HopeHouse
-    Vitty App Publishing
-    Cadence
-↓   Keats android
-```
-
-- For a shorter syntax:
-
-```
-❯ gtasks tasks view -l "DSC VIT"
-Tasks in DSC VIT:
-| NO |        TITLE         |          DESCRIPTION           | STATUS |     DUE      |
-|----|----------------------|--------------------------------|--------|--------------|
-|  1 | testing              | testing                        | ✖      | 12 July 2021 |
-|  2 | HopeHouse            | Checkout the app. Maybe        | ✖      | 06 July 2021 |
-|    |                      | migrate to Flutter 2.0         |        |              |
-|  3 | Vitty App Publishing | Get Appbundle for publishing   | ✖      | 07 July 2021 |
-|    |                      | Vitty                          |        |              |
-|  4 | Cadence              | App status - Yajat             | ✖      | 07 July 2021 |
-|  5 | Keats android        | Take update on webview from    | ✖      | 11 July 2021 |
-|    |                      | hishaam                        |        |              |
-|  6 | Keats ios            | Check up on the apple dev      | ✖      | 08 July 2021 |
-|    |                      | account status - Swamita       |        |              |
-
-❯ gtasks tasks done -l "DSC VIT" 1
+❯ gtasks done 1
 Marked as complete: testing
 ```
 
+With a specific tasklist:
+
+```
+❯ gtasks ls -l "DSC VIT"
+❯ gtasks done -l "DSC VIT" 1
+Marked as complete: testing
+```
+
+If no task number is given, you will be prompted to select a task.
+
 ## Undo a completed task
 
-Mark a completed task as incomplete again.
-
-- With prompt:
-
 ```
-❯ gtasks tasks undo
-✔ DSC VIT
-Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Task:
-  ▸ testing (completed)
-    HopeHouse (completed)
-```
-
-- For a shorter syntax (first view completed tasks to get the number):
-
-```
-❯ gtasks tasks view -l "DSC VIT" --include-completed
-Tasks in DSC VIT:
-| NO |        TITLE         | STATUS    |
-|----|----------------------|-----------|
-|  1 | testing              | completed |
-|  2 | HopeHouse            | completed |
-
-❯ gtasks tasks undo -l "DSC VIT" 1
+❯ gtasks ls -l "DSC VIT" --include-completed
+❯ gtasks undo -l "DSC VIT" 1
 Marked as incomplete: testing
 ```
+
+If no task number is given, you will be prompted to select from completed tasks.
 
 ## Clear completed tasks
 
 Hide all completed tasks from the list. This marks completed tasks as hidden so they won't be returned by the API (primarily affects tasks completed via the CLI).
 
 ```
-❯ gtasks tasks clear -l "DSC VIT"
+❯ gtasks clear -l "DSC VIT"
 ✔ Clear all completed tasks from 'DSC VIT'? [y/N]: y
 Cleared completed tasks from DSC VIT
 ```
 
-- Use `--force` or `-f` to skip the confirmation prompt:
+Use `--force` or `-f` to skip the confirmation prompt:
 
 ```
-❯ gtasks tasks clear -l "DSC VIT" --force
+❯ gtasks clear -l "DSC VIT" --force
 Cleared completed tasks from DSC VIT
 ```
 
@@ -318,32 +210,10 @@ Cleared completed tasks from DSC VIT
 
 The `info` command displays detailed information about a task, including links/URLs that may have been shared to Google Tasks (e.g., from Android's "Share With..." feature).
 
-By default, `info` only considers pending tasks (matching `view` behavior). Use `-i` to include completed tasks.
-
-- With prompt:
+By default, `info` only considers pending tasks (matching `ls`). Use `-i` to include completed tasks.
 
 ```
-❯ gtasks tasks info
-✔ DSC VIT
-Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Task:
-  ▸ testing
-    HopeHouse
-    Vitty App Publishing
-```
-
-- For a shorter syntax using task number:
-
-```
-❯ gtasks tasks view -l "DSC VIT"
-Tasks in DSC VIT:
-| NO |        TITLE         |          DESCRIPTION           | STATUS |     DUE      |
-|----|----------------------|--------------------------------|--------|--------------|
-|  1 | testing              | testing                        | ✖      | 12 July 2021 |
-|  2 | HopeHouse            | Checkout the app. Maybe        | ✖      | 06 July 2021 |
-
-❯ gtasks tasks info -l "DSC VIT" 1
+❯ gtasks info -l "DSC VIT" 1
 
 Task: testing
 Status: Needs action
@@ -356,11 +226,11 @@ Links:
 View in Google Tasks: https://tasks.google.com/...
 ```
 
-- To get info on a completed task, use `-i` (must match how you viewed the list):
+To get info on a completed task, use `-i` (must match how you listed the tasks):
 
 ```
-❯ gtasks tasks view -l "DSC VIT" -i
-❯ gtasks tasks info -l "DSC VIT" 3 -i
+❯ gtasks ls -l "DSC VIT" -i
+❯ gtasks info -l "DSC VIT" 3 -i
 ```
 
 The info command is particularly useful for viewing:
@@ -380,12 +250,12 @@ Update an existing task's title, note, or due date.
 When no flags are provided, you'll be prompted for each field with the current value displayed. Press Enter to keep the current value, or type a new value.
 
 ```
-❯ gtasks tasks update 1
+❯ gtasks update 1
 Updating task: testing
 
 Title [testing]: new title
-Note [testing notes]: 
-Due [12 July 2021]: 
+Note [testing notes]:
+Due [12 July 2021]:
 
 Updated: new title
 ```
@@ -395,12 +265,12 @@ Updated: new title
 Use flags to update specific fields without prompts:
 
 ```
-❯ gtasks tasks update 1 --title "New title"
+❯ gtasks update 1 --title "New title"
 Updating task: testing
 
 Updated: New title
 
-❯ gtasks tasks update 1 --note "Updated note" --due "tomorrow"
+❯ gtasks update 1 --note "Updated note" --due "tomorrow"
 Updating task: New title
 
 Updated: New title
@@ -408,44 +278,37 @@ Updated: New title
 
 Available flags:
 - `-t, --title` - New title for the task
-- `-n, --note` - New note for the task  
+- `-n, --note` - New note for the task
 - `-d, --due` - New due date for the task
 
 ## Delete a task
 
-- With prompt:
-
 ```
-❯ gtasks tasks rm
-✔ DSC VIT
-Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ←
-? Select Task:
-  ▸ testing
-    HopeHouse
-    Vitty App Publishing
-    Cadence
-↓   Keats android
-```
-
-- For a shorter syntax:
-
-```
-❯ gtasks tasks view -l "DSC VIT"
-Tasks in DSC VIT:
-| NO |        TITLE         |          DESCRIPTION           | STATUS |     DUE      |
-|----|----------------------|--------------------------------|--------|--------------|
-|  1 | testing              | testing                        | ✖      | 12 July 2021 |
-|  2 | HopeHouse            | Checkout the app. Maybe        | ✖      | 06 July 2021 |
-|    |                      | migrate to Flutter 2.0         |        |              |
-|  3 | Vitty App Publishing | Get Appbundle for publishing   | ✖      | 07 July 2021 |
-|    |                      | Vitty                          |        |              |
-|  4 | Cadence              | App status - Yajat             | ✖      | 07 July 2021 |
-|  5 | Keats android        | Take update on webview from    | ✖      | 11 July 2021 |
-|    |                      | hishaam                        |        |              |
-|  6 | Keats ios            | Check up on the apple dev      | ✖      | 08 July 2021 |
-|    |                      | account status - Swamita       |        |              |
-
-❯ gtasks tasks rm -l "DSC VIT" 1
+❯ gtasks rm 1
 Deleted: testing
 ```
+
+With a specific tasklist:
+
+```
+❯ gtasks ls -l "DSC VIT"
+❯ gtasks rm -l "DSC VIT" 1
+Deleted: testing
+```
+
+If no task number is given, you will be prompted to select a task.
+
+## Legacy commands
+
+The older `gtasks tasks …` namespace still works as a deprecated compatibility path:
+
+| Legacy | Prefer |
+|--------|--------|
+| `gtasks tasks view` | `gtasks ls` |
+| `gtasks tasks add` | `gtasks add` |
+| `gtasks tasks done` | `gtasks done` |
+| `gtasks tasks undo` | `gtasks undo` |
+| `gtasks tasks update` | `gtasks update` |
+| `gtasks tasks info` | `gtasks info` |
+| `gtasks tasks rm` | `gtasks rm` |
+| `gtasks tasks clear` | `gtasks clear` |

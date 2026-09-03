@@ -97,11 +97,11 @@ Then:
 
 ```bash
 # No prompt, uses "Work" automatically
-gtasks tasks view
-gtasks tasks add -t "Finish report"
+gtasks ls
+gtasks add "Finish report"
 
 # Override for a single command with the flag
-gtasks tasks view -l "Personal"
+gtasks ls -l "Personal"
 ```
 
 ### Supply credentials

@@ -1,78 +1,69 @@
 ---
 title: "Tasklist commands"
-description: "Manage Google task lists from the terminal with gtasks: view, create, update, and delete tasklists, and see inline help for every tasklist command you can run."
+description: "Manage Google task lists from the terminal with gtasks: list, create, update, and delete tasklists, and see inline help for every tasklist command you can run."
 draft: false
 weight: 3
 sitemap:
   priority: 0.8
 ---
 
-## Help command
-
-- to view inline help for all the commands
+## Help
 
 ```
 ❯ gtasks tasklists --help
 
-        View and create tasklists for currently signed-in account
+List and manage tasklists for the currently signed-in account.
 
-        View tasklists:
-        gtasks tasklists view
-
-        Create tasklist:
-        gtasks tasklists add -t <TITLE>
-        gtasks tasklists add --title <TITLE>
-
-        Remove tasklist
-        gtasks tasklists rm
+Running this command with no subcommand lists all tasklists.
 
 Usage:
   gtasks tasklists [flags]
   gtasks tasklists [command]
 
 Available Commands:
-  add         add tasklist
-  rm          remove tasklist
-  update      update tasklist title
-  view        view tasklists
-
-Flags:
-  -h, --help   help for tasklists
-
-Use "gtasks tasklists [command] --help" for more information about a command.
+  add         Add a tasklist
+  rm          Delete a tasklist
+  update      Update a tasklist
 ```
 
-## Create Tasklist
-
-Examples:
+## List tasklists
 
 ```
+❯ gtasks tasklists
+[1] DSC VIT
+[2] Daily todo
+[3] Life
+```
+
+`gtasks tasklists view` still works as a deprecated alias.
+
+## Create a tasklist
+
+```
+❯ gtasks tasklists add "Work"
+
 ❯ gtasks tasklists add --title "some title"
 
 ❯ gtasks tasklists add -t "some title"
 ```
 
-## View all Tasklists
-
-Example:
-
-```
-❯ gtasks tasklists view
-```
-
 ## Update a tasklist title
 
-Examples:
-
 ```
+❯ gtasks tasklists update Work -t "Personal"
+
 ❯ gtasks tasklists update --title "some title"
-
-❯ gtasks tasklists update  -t "some title"
 ```
+
+If no tasklist name is given, you will be prompted to select one. `--title` / `-t` is required for the new name.
 
 ## Delete a tasklist
 
-Examples:
+```
+❯ gtasks tasklists rm Work
+```
+
+If no name is given, you will be prompted to select one:
 
 ```
 ❯ gtasks tasklists rm
@@ -83,5 +74,4 @@ Use the arrow keys to navigate: ↓ ↑ → ←
     personal projects
     To watch
 ↓   DSC VIT
-
 ```

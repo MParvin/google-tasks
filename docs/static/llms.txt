@@ -15,32 +15,33 @@ Written in Go. MIT license. GitHub: https://github.com/BRO3886/gtasks
   gtasks login           # OAuth2 browser flow — stores token in system keyring
   gtasks logout          # Remove stored token
 
-## Task List Commands
-
-  gtasks tasklists view                    # List all task lists
-  gtasks tasklists add -t "Work"           # Create a task list
-  gtasks tasklists rm                      # Delete a task list (interactive)
-
 ## Task Commands
 
-  gtasks tasks view                        # View tasks (interactive list selection)
-  gtasks tasks view -l "Work"              # View tasks in specific list
-  gtasks tasks view --sort due             # Sort by due date (also: title, position)
-  gtasks tasks view --include-completed    # Include completed tasks (-i)
-  gtasks tasks view --format json          # Output as JSON (also: csv, table)
-  gtasks tasks view --max 10              # Limit results
+  gtasks ls                              # List tasks (default tasklist)
+  gtasks ls -l "Work"                    # List tasks in a specific list
+  gtasks ls --sort due                   # Sort by due date (also: title, position)
+  gtasks ls --include-completed          # Include completed tasks (-i)
+  gtasks ls --format json                # Output as JSON (also: csv, table)
+  gtasks ls --max 10                     # Limit results
 
-  gtasks tasks add -l "Work" -t "title" -d "tomorrow"   # Add task with due date
-  gtasks tasks add -t "title" --note "notes"             # Add with notes
-  gtasks tasks add -t "standup" -d "2025-02-10" --repeat daily --repeat-count 5  # Recurring
+  gtasks add "Buy milk"                  # Add a task
+  gtasks add "title" -l "Work" -d tomorrow
+  gtasks add "standup" -d "2025-02-10" --repeat daily --repeat-count 5
 
-  gtasks tasks done -l "Work" 1           # Mark task #1 done
-  gtasks tasks undo -l "Work" 1           # Mark task #1 incomplete
-  gtasks tasks rm -l "Work" 1             # Delete task #1
-  gtasks tasks info -l "Work" 1           # Full task details (notes, links)
-  gtasks tasks update 1 --title "new"     # Update task title
-  gtasks tasks clear -l "Work"            # Hide all completed tasks
-  gtasks tasks clear -l "Work" --force    # Skip confirmation
+  gtasks done 1                          # Mark task #1 done
+  gtasks undo 1                          # Mark task #1 incomplete
+  gtasks rm 1                            # Delete task #1
+  gtasks info 1                          # Full task details (notes, links)
+  gtasks update 1 --title "new"          # Update task title
+  gtasks clear                           # Hide all completed tasks
+  gtasks clear --force                   # Skip confirmation
+
+## Task List Commands
+
+  gtasks tasklists                       # List all task lists
+  gtasks tasklists add "Work"            # Create a task list
+  gtasks tasklists update Work -t "New"  # Rename a task list
+  gtasks tasklists rm Work               # Delete a task list
 
 ## AI Agent Skills
 

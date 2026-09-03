@@ -203,10 +203,12 @@ func Check(homeDir, currentVersion string) *Result {
 		return nil // silently fail
 	}
 
-	WriteCache(homeDir, &CacheEntry{
+	if err := WriteCache(homeDir, &CacheEntry{
 		CheckedAt: now,
 		Latest:    latest,
-	})
+	}); err != nil {
+		return nil // silently fail
+	}
 
 	if CompareVersions(currentVersion, latest) {
 		return &Result{Latest: latest, HasUpdate: true}

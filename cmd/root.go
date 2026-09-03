@@ -23,14 +23,21 @@ var rootCmd = &cobra.Command{
 	Use:     "gtasks",
 	Short:   "A CLI Tool for Google Tasks",
 	Version: Version,
-	Long: `
-	A CLI Tool for managing your Google Tasks:
+	Long: `A CLI tool for managing your Google Tasks.
 
-	* Run gtasks help for checking out inline help
-	* Run gtasks login to log-in with your Google account
+Common commands:
+  gtasks ls                 List tasks
+  gtasks add "Buy milk"     Add a task
+  gtasks done 1             Mark a task as done
+  gtasks tasklists          List tasklists
 
-	Made with ❤ by https://github.com/BRO3886
-`,
+Run gtasks login to authenticate with your Google account.
+
+Made with ❤ by https://github.com/BRO3886`,
+	Example: `  gtasks ls
+  gtasks add "Buy milk"
+  gtasks done 1
+  gtasks tasklists`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if !shouldCheckForUpdate(cmd) {
 			updateResultCh <- nil
