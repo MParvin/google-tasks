@@ -10,6 +10,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var skillsAgentFlag string
@@ -217,7 +219,7 @@ func runAgentPicker(allTargets []skills.AgentTarget, action string) ([]skills.Ag
 	}
 
 	prompt := promptui.Select{
-		Label:     fmt.Sprintf("%s gtasks skill for which agent?", strings.Title(action)),
+		Label:     fmt.Sprintf("%s gtasks skill for which agent?", cases.Title(language.Und).String(action)),
 		Items:     allTargets,
 		Templates: templates,
 		Size:      len(allTargets),

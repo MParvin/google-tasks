@@ -216,7 +216,9 @@ func startCallbackServer(listener net.Listener, config *oauth2.Config, verifier,
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		server.Shutdown(ctx)
+		if err := server.Shutdown(ctx); err != nil {
+			utils.Warn("Failed to shut down callback server cleanly: %v\n", err)
+		}
 	}()
 
 	select {
@@ -266,7 +268,9 @@ func loadToken() (*oauth2.Token, error) {
 		} else {
 			// Corrupt keyring entry — warn and clean it up before falling through
 			utils.Warn("Keyring entry is corrupt, clearing it: %v\n", jsonErr)
-			keyring.Delete(keyringService, keyringUser)
+			if deleteErr := keyring.Delete(keyringService, keyringUser); deleteErr != nil && !errors.Is(deleteErr, keyring.ErrNotFound) {
+				utils.Warn("Failed to clear corrupt keyring entry: %v\n", deleteErr)
+			}
 		}
 	}
 

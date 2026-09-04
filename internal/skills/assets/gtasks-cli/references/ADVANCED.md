@@ -13,7 +13,7 @@ Create multiple tasks from a text file:
 # Task title | Notes | Due date
 
 while IFS='|' read -r title notes due; do
-  gtasks tasks add -l "Work" -t "$title" -n "$notes" -d "$due"
+  gtasks add -l "Work" -t "$title" -n "$notes" -d "$due"
 done < tasks.txt
 ```
 
@@ -27,11 +27,11 @@ KEYWORD="meeting"
 LIST="Work"
 
 # Get tasks as JSON
-TASKS=$(gtasks tasks view -l "$LIST" --format=json)
+TASKS=$(gtasks ls -l "$LIST" --format=json)
 
 # Find matching task numbers and mark complete
 echo "$TASKS" | jq -r ".[] | select(.title | contains(\"$KEYWORD\")) | .number" | while read num; do
-  gtasks tasks done "$num" -l "$LIST"
+  gtasks done "$num" -l "$LIST"
 done
 ```
 
@@ -43,13 +43,13 @@ Extract specific information:
 
 ```bash
 # Get all overdue tasks
-gtasks tasks view --format=json -l "Work" | jq '[.[] | select(.due != "" and .status == "pending") | select(.due < (now | strftime("%Y-%m-%d")))]'
+gtasks ls --format=json -l "Work" | jq '[.[] | select(.due != "" and .status == "pending") | select(.due < (now | strftime("%Y-%m-%d")))]'
 
 # Count pending vs completed
-gtasks tasks view -i --format=json -l "Work" | jq 'group_by(.status) | map({status: .[0].status, count: length})'
+gtasks ls -i --format=json -l "Work" | jq 'group_by(.status) | map({status: .[0].status, count: length})'
 
 # Get tasks due this week
-gtasks tasks view --format=json -l "Work" --sort=due | jq '[.[] | select(.due != "") | select(.due <= (now + 604800 | strftime("%Y-%m-%d")))]'
+gtasks ls --format=json -l "Work" --sort=due | jq '[.[] | select(.due != "") | select(.due <= (now + 604800 | strftime("%Y-%m-%d")))]'
 ```
 
 ### CSV Processing
@@ -58,9 +58,9 @@ Import to spreadsheet tools:
 
 ```bash
 # Export all lists to separate CSV files
-for list in $(gtasks tasklists view | grep -oP '\[\d+\] \K.*'); do
+for list in $(gtasks tasklists | grep -oP '\[\d+\] \K.*'); do
   filename="${list// /_}.csv"
-  gtasks tasks view -l "$list" --format=csv > "$filename"
+  gtasks ls -l "$list" --format=csv > "$filename"
 done
 ```
 
@@ -72,7 +72,7 @@ Create calendar events for tasks with due dates:
 
 ```bash
 # Pseudocode - integrate with calendar tool
-gtasks tasks view --format=json -l "Work" | jq -r '.[] | select(.due != "") | "\(.title),\(.due),\(.description)"' | while IFS=',' read -r title date desc; do
+gtasks ls --format=json -l "Work" | jq -r '.[] | select(.due != "") | "\(.title),\(.due),\(.description)"' | while IFS=',' read -r title date desc; do
   # Add to calendar using your calendar CLI tool
   # cal add "$title" "$date" --description "$desc"
 done
@@ -88,7 +88,7 @@ Set up notifications for tasks due soon:
 
 TOMORROW=$(date -d '+1 day' +%Y-%m-%d)
 
-gtasks tasks view --format=json -l "Work" | jq -r ".[] | select(.due == \"$TOMORROW\") | .title" | while read task; do
+gtasks ls --format=json -l "Work" | jq -r ".[] | select(.due == \"$TOMORROW\") | .title" | while read task; do
   # Send notification
   notify-send "Task Due Tomorrow" "$task"
 done
@@ -100,7 +100,7 @@ Export and import pattern:
 
 ```bash
 # Export from gtasks
-gtasks tasks view --format=json -l "Work" > gtasks_export.json
+gtasks ls --format=json -l "Work" > gtasks_export.json
 
 # Transform data (example for generic task manager)
 jq '[.[] | {
@@ -123,7 +123,7 @@ CACHE_FILE="/tmp/gtasks_lists_cache"
 CACHE_DURATION=3600
 
 if [ ! -f "$CACHE_FILE" ] || [ $(( $(date +%s) - $(stat -f %m "$CACHE_FILE") )) -gt $CACHE_DURATION ]; then
-  gtasks tasklists view > "$CACHE_FILE"
+  gtasks tasklists > "$CACHE_FILE"
 fi
 
 cat "$CACHE_FILE"
@@ -136,7 +136,7 @@ Process multiple lists concurrently:
 ```bash
 #!/bin/bash
 # Process each list in parallel
-gtasks tasklists view | grep -oP '\[\d+\] \K.*' | xargs -P 4 -I {} bash -c 'gtasks tasks view -l "{}" --format=json > "$(echo {} | tr " " "_").json"'
+gtasks tasklists | grep -oP '\[\d+\] \K.*' | xargs -P 4 -I {} bash -c 'gtasks ls -l "{}" --format=json > "$(echo {} | tr " " "_").json"'
 ```
 
 ## API Rate Limiting
@@ -146,7 +146,7 @@ Google Tasks API has rate limits. For bulk operations:
 1. **Add delays between requests:**
 ```bash
 for task in task1 task2 task3; do
-  gtasks tasks add -l "Work" -t "$task"
+  gtasks add -l "Work" -t "$task"
   sleep 1  # 1 second delay
 done
 ```
@@ -154,7 +154,7 @@ done
 2. **Batch operations where possible:**
 ```bash
 # Instead of multiple view commands, store the result
-TASKS=$(gtasks tasks view -l "Work" --format=json)
+TASKS=$(gtasks ls -l "Work" --format=json)
 # Then process locally using jq
 ```
 
@@ -167,19 +167,19 @@ Robust error handling:
 set -e  # Exit on error
 
 # Check if authenticated
-if ! gtasks tasklists view &> /dev/null; then
+if ! gtasks tasklists &> /dev/null; then
   echo "Error: Not authenticated. Run 'gtasks login'" >&2
   exit 1
 fi
 
 # Check if task list exists
-if ! gtasks tasks view -l "Work" &> /dev/null; then
+if ! gtasks ls -l "Work" &> /dev/null; then
   echo "Error: Task list 'Work' not found" >&2
   exit 1
 fi
 
 # Proceed with operations
-gtasks tasks add -l "Work" -t "New Task" || {
+gtasks add -l "Work" -t "New Task" || {
   echo "Error: Failed to create task" >&2
   exit 1
 }
@@ -199,7 +199,7 @@ TOMORROW=$(date -d '+1 day' +%Y-%m-%d)
 TOMORROW=$(date -v+1d +%Y-%m-%d)
 
 # Cross-platform using gtasks native date parsing
-gtasks tasks add -l "Work" -t "Task" -d "tomorrow"  # Works everywhere
+gtasks add -l "Work" -t "Task" -d "tomorrow"  # Works everywhere
 ```
 
 ### File Paths
@@ -224,10 +224,10 @@ Enable verbose output for troubleshooting:
 gtasks login
 
 # Test API connectivity
-gtasks tasklists view
+gtasks tasklists
 
 # Check command output
-gtasks tasks view -l "Work" --format=json | jq '.'
+gtasks ls -l "Work" --format=json | jq '.'
 
 # On headless systems where keyring is unavailable, token falls back to file:
 ls -la ~/.config/gtasks/token.json   # XDG path
@@ -272,7 +272,7 @@ log() {
 }
 
 log "Starting task sync"
-gtasks tasks view -l "Work" > /dev/null && log "Success" || log "Failed"
+gtasks ls -l "Work" > /dev/null && log "Success" || log "Failed"
 ```
 
 ## Testing
@@ -284,7 +284,7 @@ Test script template:
 # test_gtasks.sh
 
 test_auth() {
-  gtasks tasklists view &> /dev/null
+  gtasks tasklists &> /dev/null
   if [ $? -eq 0 ]; then
     echo "✓ Authentication working"
     return 0
@@ -298,7 +298,7 @@ test_list_creation() {
   TEST_LIST="Test_$(date +%s)"
   gtasks tasklists add -t "$TEST_LIST"
 
-  if gtasks tasks view -l "$TEST_LIST" &> /dev/null; then
+  if gtasks ls -l "$TEST_LIST" &> /dev/null; then
     echo "✓ List creation working"
     gtasks tasklists rm <<< "1"  # Cleanup
     return 0

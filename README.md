@@ -157,170 +157,92 @@ New installations use `~/.config/gtasks/` by default.
 
 See the [Configuration docs](https://gtasks.sidv.dev/docs/configuration/) for the full config file reference.
 
-- Usage
+## Commands
+
+```bash
+gtasks --help
+```
 
 ```
 Usage:
   gtasks [command]
 
 Available Commands:
+  add         Add a task
+  clear       Hide all completed tasks
+  completion  Generate the autocompletion script
+  done        Mark a task as done
   help        Help about any command
-  login       Logging into Google Tasks
-  tasklists   View and create tasklists for currently signed-in account
-  tasks       View, create, list and delete tasks in a tasklist
-
-Flags:
-  -h, --help     help for gtasks
-  -t, --toggle   Help message for toggle
-
-Use "gtasks [command] --help" for more information about a command.
-```
-
-## Commands
-
-### Help
-
-- To see details about a command
-
-```bash
-gtasks <COMMAND> help
+  info        View detailed information about a task
+  login       Authenticate with Google Tasks
+  logout      Logout currently signed in user
+  ls          List tasks
+  rm          Delete a task
+  skills      Manage AI agent skills for gtasks
+  tasklists   Manage tasklists
+  undo        Mark a completed task as incomplete
+  update      Update an existing task
 ```
 
 ### Auth
 
-- Login
-
 ```bash
 gtasks login
-```
-
-- Logout
-
-```bash
 gtasks logout
-```
-
-### Tasklists
-
-- Viewing Tasklists
-
-```bash
-gtasks tasklists view
-```
-
-- Creating a Tasklist
-
-```bash
-gtasks tasklists add -t 'title'
-gtasks tasklists add --title 'title'
-```
-
-- Deleting a Tasklist
-
-```bash
-gtasks tasklists rm
 ```
 
 ### Tasks
 
-- To pre-select tasklist, provide it's title as follows:
+Task commands use the default tasklist when `-l` / `--tasklist` is omitted (`GTASKS_DEFAULT_TASKLIST` or `tasks.default_task_list` in the config file). If no default is set and more than one list exists, you will be prompted to choose one.
 
 ```bash
-gtasks tasks -l <title> subcommand [--subcommand-flags]
+# List tasks
+gtasks ls
+gtasks ls -l work
+gtasks ls --tasklist work --sort due
+gtasks ls -i                  # include completed
+gtasks ls --completed         # only completed
+gtasks ls --format json
+gtasks ls --max 10
+
+# Add a task
+gtasks add "Buy milk"
+gtasks add "Deploy the application" -l work
+gtasks add -t "Call dentist" -d tomorrow
+gtasks add "Standup" -d "2025-02-10" --repeat daily --repeat-count 5
+gtasks add "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
+
+# Complete / undo
+gtasks done 1
+gtasks undo 1
+
+# Inspect / update / delete
+gtasks info 1
+gtasks update 1 --title "New title"
+gtasks rm 1
+
+# Hide completed tasks (prompts unless --force)
+gtasks clear
+gtasks clear --force
 ```
 
-Examples:
-
-```bash
-gtasks tasks [--tasklist|-l] "DSC VIT" view [--include-completed | -i]
-```
-
-**Note:** If the `-l` flag is not provided you will be able to choose a tasklist from the prompt
-
-- Viewing tasks
-
-```bash
-gtasks tasks view
-```
-
-- Include completed tasks
-
-```bash
-gtasks tasks view -i
-gtasks tasks view --include-completed
-```
-
-- Sort options
-
-```bash
-gtasks tasks view ... --sort [due,title,position, default=position]
-```
-
-- Limit results
-
-```bash
-gtasks tasks view --max 10  # Show only first 10 tasks
-```
-
-- Adding a task
-
-```bash
-gtasks tasks add
-```
-
-- Adding a recurring task
-
-```bash
-# Create 5 daily tasks starting from Feb 10
-gtasks tasks add -t "Standup" -d "2025-02-10" --repeat daily --repeat-count 5
-
-# Create weekly tasks until March 10
-gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
-```
+Task numbers are the 1-based index shown by `gtasks ls`. They can change when the list is sorted or modified.
 
 Repeat patterns: `daily`, `weekly`, `monthly`, `yearly`
 
-- Mark task as completed
+### Tasklists
 
 ```bash
-gtasks tasks done
+gtasks tasklists
+gtasks tasklists add "Work"
+gtasks tasklists add --title "Work"
+gtasks tasklists update Work -t "Personal"
+gtasks tasklists rm Work
 ```
 
-- Undo a completed task (mark as incomplete)
+### Legacy commands
 
-```bash
-gtasks tasks undo
-```
-
-- Clear completed tasks (hide from API)
-
-```bash
-gtasks tasks clear
-gtasks tasks clear --force  # Skip confirmation
-```
-
-- View detailed task information (including links/URLs)
-
-```bash
-gtasks tasks info [task-number]
-```
-
-- Update an existing task
-
-```bash
-# Interactive mode - shows current values and prompts for changes
-gtasks tasks update [task-number]
-
-# Flag mode - update specific fields
-gtasks tasks update 1 --title "New title"
-gtasks tasks update 1 --note "Updated note" --due "tomorrow"
-```
-
-- Deleting a task
-
-```bash
-gtasks tasks rm
-```
+The older `gtasks tasks view|add|done|...` and `gtasks tasklists view` commands still work as deprecated aliases. Prefer the top-level commands above.
 
 <div align="center">
 Made with :coffee: & <a href="https://cobra.dev">Cobra</a>

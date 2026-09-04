@@ -51,7 +51,7 @@ func LoadAppConfig() {
 	// 1. Environment variables — GTASKS_ prefix, mapped to dotted keys
 	// e.g. GTASKS_CLIENT_ID -> credentials.client_id
 	//      GTASKS_DEFAULT_TASKLIST -> tasks.default_task_list
-	k.Load(env.Provider("GTASKS_", ".", func(s string) string {
+	if err := k.Load(env.Provider("GTASKS_", ".", func(s string) string {
 		s = strings.TrimPrefix(s, "GTASKS_")
 		s = strings.ToLower(s)
 		switch s {
@@ -63,7 +63,9 @@ func LoadAppConfig() {
 			return "tasks.default_task_list"
 		}
 		return "" // skip unrecognized GTASKS_* vars
-	}), nil)
+	}), nil); err != nil {
+		utils.Warn("Could not load GTASKS_* environment variables: %v\n", err)
+	}
 }
 
 // GetDefaultTaskList returns the default task list from config/env, or empty string.

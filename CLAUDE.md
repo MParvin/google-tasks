@@ -79,18 +79,24 @@ default_task_list = "My Tasks"
 
 ```
 gtasks
-├── login                    # Authenticate with Google
-├── logout                   # Remove stored credentials
-├── tasklists               # Task list operations
-│   ├── view                # List all task lists
-│   ├── add -t "title"      # Create new task list
-│   └── rm                  # Delete task list
-└── tasks [-l "list-name"]  # Task operations
-    ├── view [--sort=due]   # View tasks (with sorting)
-    ├── add [-t "title"]    # Create new task
-    ├── done                # Mark task complete
-    └── rm                  # Delete task
+├── ls [-l list]            # List tasks
+├── add [title]             # Add a task
+├── done [task-number]      # Mark a task as done
+├── undo [task-number]      # Mark a completed task as incomplete
+├── update [task-number]    # Update a task
+├── info [task-number]      # View task details
+├── rm [task-number]        # Delete a task
+├── clear                   # Hide completed tasks
+├── tasklists               # List tasklists
+│   ├── add [title]         # Create a tasklist
+│   ├── update [tasklist]   # Rename a tasklist
+│   └── rm [tasklist]       # Delete a tasklist
+├── login                   # Authenticate with Google
+├── logout                  # Remove stored credentials
+└── skills                  # Manage AI agent skills
 ```
+
+Deprecated aliases: `gtasks tasks view|add|done|undo|update|info|rm|clear` and `gtasks tasklists view`.
 
 ## Build System
 
@@ -141,7 +147,7 @@ When implementing a new feature, follow this workflow:
 
 - Build for dev: `make dev EMBED_CREDS=1` (creates `./gtasks` binary with embedded credentials)
 - Test authentication: `./gtasks login`
-- Test task operations: `./gtasks tasks view`
+- Test task operations: `./gtasks ls`
 
 ### Key Files to Understand
 
